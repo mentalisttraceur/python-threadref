@@ -38,7 +38,7 @@ callback that will fire when the thread exits:
 
 .. code:: python
 
-    ref = threadref.ref(my_callback)
+    ref = threadref.ref(lambda ref: ...)
 
 ``threadref.ref`` mirrors ``weakref.ref``, except that:
 
