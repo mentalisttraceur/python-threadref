@@ -6,7 +6,7 @@ that detect when the thread is no longer running, similar to how a
 weak reference detects when its referent object is no longer alive.
 
 Provides a lightweight way for one or more independent pieces of code
-to register per-thread cleanup callbacks *without coordination*.
+to register per-thread cleanup callbacks without coordination.
 
 
 Versioning
