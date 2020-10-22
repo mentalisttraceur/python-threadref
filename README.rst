@@ -58,5 +58,5 @@ Portability
 -----------
 
 Internally, ``threadref`` is just a weak reference to a thread
-local variable, and this trick seems to only works on CPython
+local variable, and this trick seems to only work on CPython
 implementations with the C implementation of ``threading.local``.
