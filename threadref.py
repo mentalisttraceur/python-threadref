@@ -60,10 +60,10 @@ class finalize(_finalize):
         """Initialize the finalizer.
 
         Arguments:
-            func: Function (or other callable) to call
+            function: Function (or other callable) to call
                 once the current thread stops running.
-            *args: Arguments for ``func``.
-            **kwargs: Keyword arguments for ``func``.
+            *args: Positional arguments for ``function``.
+            **kwargs: Keyword arguments for ``function``.
         """
         def __init__(self, func, *args):
             return self, func, args
