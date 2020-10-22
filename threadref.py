@@ -25,11 +25,12 @@ to register per-thread cleanup callbacks without coordination.
 
 from threading import current_thread as _current_thread
 from threading import local as _threadlocal
+from weakref import finalize as _finalize
 from weakref import ref as _weakref
 
 
-__all__ = ('ref',)
-__version__ = '1.0.1'
+__all__ = ('finalize', 'ref',)
+__version__ = '1.1.0'
 
 
 # We only need one global thread-local variable for this to work:
@@ -39,6 +40,48 @@ _threadlocal = _threadlocal()
 # Plain `object` supports neither weak references nor custom attributes.
 class _Object(object):
     __slots__ = ('__weakref__', '_thread')
+
+
+def _repr(name, id, thread):
+    parts = (name, str(id), thread)
+    return '<' + ' '.join(parts) + '>'
+
+
+class finalize(_finalize):
+    """Finalizer for the current thread.
+
+    Unlike normal finalizers, this detects when the current thread
+    stops running, not when a given object is stops being alive.
+    """
+
+    __slots__ = ()
+
+    def __init__(*args, **kwargs):
+        """Initialize the finalizer.
+
+        Arguments:
+            func: Function (or other callable) to call
+                once the current thread stops running.
+            *args: Arguments for ``func``.
+            **kwargs: Keyword arguments for ``func``.
+        """
+        def __init__(self, func, *args):
+            return self, func, args
+        self, func, args = __init__(*args)
+        try:
+            anchor = _threadlocal.anchor
+        except AttributeError:
+            anchor = _threadlocal.anchor = _Object()
+            anchor._thread = _current_thread()
+        super(finalize, self).__init__(anchor, func, *args, **kwargs)
+
+    def __repr__(self):
+        """Represent the thread finalizer as an unambiguous string."""
+        info = self.peek()
+        if info is None:
+            return _repr('threadref.finalize', id(self), 'dead')
+        thread = info[0]
+        return _repr('threadref.finalize', id(self), repr(thread))
 
 
 class ref(_weakref):
@@ -84,5 +127,5 @@ class ref(_weakref):
         """Represent the weak thread reference as an unambiguous string."""
         thread = self()
         if thread is None:
-            return '<threadref ' + repr(id(self)) + ' dead>'
-        return '<threadref ' + repr(id(self)) + ' ' + repr(thread) + '>'
+            return _repr('threadref', id(self), 'dead')
+        return _repr('threadref', id(self), repr(thread))

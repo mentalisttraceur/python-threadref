@@ -57,6 +57,9 @@ running, or their callback will not be called.
 Portability
 -----------
 
+``threadref`` only supports CPython 3.4+. If you polyfill
+``weakref.finalize`` it is known to work on CPython 2.7.
+
 Internally, ``threadref`` is just a weak reference to a thread
 local variable, and this trick seems to only works on CPython
 implementations with the C implementation of ``threading.local``.
