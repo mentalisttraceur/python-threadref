@@ -56,14 +56,12 @@ class finalize(_finalize):
 
     __slots__ = ()
 
-    def __init__(*args, **kwargs):
+    def __init__(self, function):
         """Initialize the finalizer.
 
         Arguments:
             function: Function (or other callable) to call
                 once the current thread stops running.
-            *args: Positional arguments for ``function``.
-            **kwargs: Keyword arguments for ``function``.
         """
         def __init__(self, func, *args):
             return self, func, args
