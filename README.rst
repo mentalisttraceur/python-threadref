@@ -52,3 +52,11 @@ callback that will fire when the thread exits:
 So all ``weakref.ref`` caveats apply. In particular, ``threadref.ref``
 instances must still be alive when their referent thread stops
 running, or their callback will not be called.
+
+
+Portability
+-----------
+
+Internally, ``threadref`` is just a weak reference to a thread
+local variable, and this trick seems to only works on CPython
+implementations with the C implementation of ``threading.local``.

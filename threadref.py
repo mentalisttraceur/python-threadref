@@ -29,7 +29,7 @@ from weakref import ref as _weakref
 
 
 __all__ = ('ref',)
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 
 # We only need one global thread-local variable for this to work:

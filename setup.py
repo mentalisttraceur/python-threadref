@@ -31,6 +31,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: Implementation :: CPython',
         'Operating System :: OS Independent',
     ],
     py_modules=['threadref'],
