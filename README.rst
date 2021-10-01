@@ -29,16 +29,9 @@ Installation
 Usage
 -----
 
-Import
-~~~~~~
-
 .. code:: python
 
     import threadref
-
-
-``ref``
-~~~~~~~
 
 Create a reference to the current thread, with a
 callback that will fire when the thread exits:
@@ -50,10 +43,6 @@ callback that will fire when the thread exits:
 Just like ``weakref.ref``, ``threadref.ref`` instances
 must still be alive when their referent thread stops
 running, or their callback will not be called.
-
-
-``finalize``
-~~~~~~~~~~~~
 
 Create a finalizer for the current thread, which
 will be called when the thread exits:
