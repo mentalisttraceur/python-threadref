@@ -12,11 +12,12 @@ to register per-thread cleanup callbacks without coordination.
 """
 
 __all__ = ('ref',)
-__version__ = '1.0.3'
+__version__ = '1.1.0'
 
 
 from threading import current_thread as _current_thread
 from threading import local as _threadlocal
+from weakref import finalize as _finalize
 from weakref import ref as _weakref
 
 
@@ -74,3 +75,68 @@ class ref(_weakref):
         if thread is None:
             return '<threadref ' + repr(id(self)) + ' dead>'
         return '<threadref ' + repr(id(self)) + ' ' + repr(thread) + '>'
+
+
+class finalize(_finalize):
+    """Finalizer for the current thread.
+
+    Unlike normal finalizers, this detects when the current thread
+    stops running, not when a given object is stops being alive.
+    """
+
+    __slots__ = ()
+
+    def __init__(*args, **kwargs):
+        """Initialize the finalizer.
+
+        Arguments:
+            function: Function (or other callable) to call
+                once the current thread stops running.
+            *args: Positional arguments for the function.
+            **kwargs: Keyword arguments for the function.
+        """
+        def __init__(self, function, *args):
+            return self, function, args
+        self, function, args = __init__(*args)
+        try:
+            anchor = _threadlocal.anchor
+        except AttributeError:
+            anchor = _threadlocal.anchor = _Object()
+            anchor._thread = _current_thread()
+        super(finalize, self).__init__(anchor, function, *args, **kwargs)
+
+    def detach(self):
+        """Detach the finalizer from the thread.
+
+        Returns:
+            tuple (threading.Thread, function, args, kwargs):
+                If the thread is still running.
+            None: If the thread is no longer running.
+        """
+        state = super(finalize, self).detach()
+        if state is None:
+            return None
+        anchor, function, args, kwargs = state
+        return (anchor._thread, function, args, kwargs)
+
+    def peek(self):
+        """Get the return value of calling detach without detaching.
+
+        Returns:
+            tuple (threading.Thread, function, args, kwargs):
+                If the thread is still running.
+            None: If the thread is no longer running.
+        """
+        state = super(finalize, self).peek()
+        if state is None:
+            return None
+        anchor, function, args, kwargs = state
+        return (anchor._thread, function, args, kwargs)
+
+    def __repr__(self):
+        """Represent the thread finalizer as an unambiguous string."""
+        state = self.peek()
+        if state is None:
+            return '<threadfinalize ' + repr(id(self)) + ' dead>'
+        thread, _, _, _ = state
+        return '<threadfinalize ' + repr(id(self)) + ' ' + repr(thread) + '>'

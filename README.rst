@@ -33,12 +33,16 @@ Import:
 
     import threadref
 
+
+``ref``
+~~~~~~~
+
 Create a reference to the current thread, with a
 callback that will fire when the thread exits:
 
 .. code:: python
 
-    ref = threadref.ref(lambda ref: ...)
+    reference = threadref.ref(lambda ref: ...)
 
 ``threadref.ref`` mirrors ``weakref.ref``, except that:
 
@@ -49,9 +53,35 @@ callback that will fire when the thread exits:
    object for its thread once the thread stops running, not once
    that object stops being alive.
 
-So all ``weakref.ref`` caveats apply. In particular, ``threadref.ref``
-instances must still be alive when their referent thread stops
+So just like ``weakref.ref``, ``threadref.ref`` instances
+must still be alive when their referent thread stops
 running, or their callback will not be called.
+
+
+``finalize``
+~~~~~~~~~~~~
+
+Create a finalizer for the current thread, which
+will be called when the thread exits:
+
+.. code:: python
+
+    finalizer = threadref.finalize(function, *args, **kwargs)
+
+``threadref.finalize`` mirrors ``weakref.finalize``, except that:
+
+1. It references the thread that constructed it
+   instead of taking a referent argument.
+
+2. In all cases where ``weakref.finalize`` returns the tuple
+   ``(object, function, args, kwargs)``, it returns the tuple
+   ``(thread, function, args, kwargs)`` instead.
+
+3. It starts returning ``None`` once the thread stops running.
+
+The finalizer remains alive on its own as long as it needs to,
+so this is a simpler and nicer interface in the typical case
+of registering cleanup functions.
 
 
 Portability
