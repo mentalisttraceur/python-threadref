@@ -12,7 +12,7 @@ to register per-thread cleanup callbacks without coordination.
 """
 
 __all__ = ('ref',)
-__version__ = '1.1.4'
+__version__ = '1.1.5'
 
 
 from threading import current_thread as _current_thread
